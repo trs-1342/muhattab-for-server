@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('inc/head') %>
+  </head>
+  <body>
+    <div class="container mt-4">
+      <h3>Welcome, <%= user.username %>!</h3>
+      <div
+        id="messages"
+        class="border p-3 rounded mb-3"
+        style="height: 300px; overflow-y: auto"
+      ></div>
+      <form id="messageForm">
+        <input
+          class="form-control"
+          type="text"
+          id="messageInput"
+          placeholder="Type your message..."
+          required
+        />
+        <button class="btn btn-primary mt-2">Send</button>
+      </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const form = document.getElementById("messageForm");
+      const input = document.getElementById("messageInput");
+      const messages = document.getElementById("messages");
+
+      socket.on("load messages", (msgs) => {
+        msgs.forEach((msg) => appendMsg(msg));
+      });
+
+      socket.on("new message", (msg) => appendMsg(msg));
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (input.value.trim()) {
+          socket.emit("new message", input.value);
+          input.value = "";
+        }
+      });
+
+      function appendMsg(msg) {
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${msg.time}:</strong> ${msg.text}`;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+      }
+    </script>
+  </body>
+</html>
