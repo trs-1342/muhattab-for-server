@@ -55,7 +55,7 @@ app.post("/auth", (req, res) => {
     }
   } else if (action === "register") {
     const userExists = users.find((u) => u.username === username);
-    if (userExists || username !== ADMIN_USERNAME) {
+    if (userExists || username == ADMIN_USERNAME) {
       return res.send(
         '<h3 style="color:red;text-align:center">Bu kullanıcı adı kullanılamaz veya zaten var.</h3><a href="/auth">Geri Dön</a>'
       );
@@ -76,14 +76,14 @@ io.on("connection", (socket) => {
   socket.on("new message", (data) => {
     const { text, sender } = data;
 
-    if (sender !== ADMIN_USERNAME) {
-      socket.emit("new message", {
-        text: "Bu kullanıcı mesaj gönderemez.",
-        sender: "Sistem",
-        time: new Date().toLocaleString(),
-      });
-      return;
-    }
+    // if (sender !== !ADMIN_USERNAME) {
+    //   socket.emit("new message", {
+    //     text: "Bu kullanıcı mesaj gönderemez.",
+    //     sender: "Sistem",
+    //     time: new Date().toLocaleString(),
+    //   });
+    //   return;
+    // }
 
     if (text.startsWith("/delete")) {
       const parts = text.split(" ");
