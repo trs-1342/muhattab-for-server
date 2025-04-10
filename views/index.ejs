@@ -40,6 +40,7 @@
       }
 
       socket.on("load messages", (msgs) => {
+        messages.innerHTML = "";
         msgs.forEach((msg) => appendMsg(msg));
       });
 
@@ -51,26 +52,19 @@
 
         if (!canSend || rawMessage === "") return;
 
-        // HTML içeriği varsa engelle
-        if (/<.*?>/.test(rawMessage)) {
-          alert("HTML etiketleri kullanılamaz!");
-          return;
-        }
-
         const safeMessage = sanitize(rawMessage);
-
         socket.emit("new message", { text: safeMessage, sender: username });
         input.value = "";
         canSend = false;
 
         setTimeout(() => {
           canSend = true;
-        }, 3000); // 3 saniyelik bekleme
+        }, 3000); // 3 saniye bekletme
       });
 
       function appendMsg(msg) {
         const div = document.createElement("div");
-        div.innerHTML = `<strong>${msg.sender} (${
+        div.innerHTML = `<strong>${sanitize(msg.sender)} (${
           msg.time
         }):</strong> ${sanitize(msg.text)}`;
         messages.appendChild(div);
