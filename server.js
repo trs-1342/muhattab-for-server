@@ -11,6 +11,7 @@ const io = new Server(server);
 
 const DATA_PATH = process.env.DATA_PATH || "./data/messages.json";
 const USERS_PATH = process.env.USERS_PATH || "./data/users.json";
+const PORT = 3000;
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -30,51 +31,55 @@ function loadFromFile(file) {
 }
 
 app.get("/", (req, res) => {
-  if (!req.session.user) return res.redirect("/login");
+  if (!req.session.user) return res.redirect("/auth");
   res.render("index", { user: req.session.user });
 });
 
-app.get("/login", (req, res) => {
-  res.render("login");
+app.get("/auth", (req, res) => {
+  res.render("auth");
 });
 
-app.post("/login", (req, res) => {
+app.post("/auth", (req, res) => {
   const users = loadFromFile(USERS_PATH);
-  const user = users.find(
-    (u) => u.username === req.body.username && u.password === req.body.password
-  );
-  if (user) {
-    req.session.user = user;
-    res.redirect("/");
-  } else {
-    res.redirect("/login");
+  const { username, password, action } = req.body;
+
+  if (action === "login") {
+    const user = users.find(
+      (u) => u.username === username && u.password === password
+    );
+    if (user) {
+      req.session.user = user;
+      return res.redirect("/");
+    }
+  } else if (action === "register") {
+    const userExists = users.find((u) => u.username === username);
+    if (!userExists) {
+      const user = { username, password };
+      users.push(user);
+      saveToFile(USERS_PATH, users);
+      req.session.user = user;
+      return res.redirect("/");
+    }
   }
-});
-
-app.get("/register", (req, res) => {
-  res.render("register");
-});
-
-app.post("/register", (req, res) => {
-  const users = loadFromFile(USERS_PATH);
-  const user = { username: req.body.username, password: req.body.password };
-  users.push(user);
-  saveToFile(USERS_PATH, users);
-  res.redirect("/login");
+  res.redirect("/auth");
 });
 
 io.on("connection", (socket) => {
   const messages = loadFromFile(DATA_PATH);
   socket.emit("load messages", messages);
 
-  socket.on("new message", (msg) => {
-    const newMsg = { text: msg, time: new Date().toLocaleString() };
+  socket.on("new message", (data) => {
+    const newMsg = {
+      text: data.text,
+      sender: data.sender,
+      time: new Date().toLocaleString(),
+    };
     messages.push(newMsg);
     saveToFile(DATA_PATH, messages);
     io.emit("new message", newMsg);
   });
 });
 
-server.listen(3000, () =>
-  console.log("Server running on http://localhost:3000")
+server.listen(PORT, () =>
+  console.log(`server is running :)`)
 );
