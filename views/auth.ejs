@@ -3,6 +3,10 @@
   <head>
     <%- include('inc/head') %>
     <style>
+      body {
+        background: linear-gradient(135deg, #6f86d6, #48c6ef);
+        font-family: "Segoe UI", sans-serif;
+      }
       .auth-container {
         min-height: 100vh;
         display: flex;
@@ -12,40 +16,59 @@
       .auth-box {
         max-width: 400px;
         width: 100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
       }
-      /* .form-toggle {
+      .form-toggle {
         display: flex;
         justify-content: center;
+        gap: 1rem;
         margin-bottom: 1rem;
-      } */
+      }
+      .form-toggle input[type="radio"] {
+        display: none;
+      }
+      .form-toggle label {
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        background-color: #e0e0e0;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .form-toggle input:checked + label {
+        background-color: #0d6efd;
+        color: white;
+      }
     </style>
   </head>
   <body>
     <div class="auth-container">
-      <div class="auth-box card p-4 shadow">
+      <div class="auth-box">
         <div class="form-toggle">
           <input type="radio" name="mode" id="loginMode" checked />
-          <label for="loginMode" class="mx-2">Login</label>
+          <label for="loginMode">Login</label>
           <input type="radio" name="mode" id="registerMode" />
-          <label for="registerMode" class="mx-2">Register</label>
+          <label for="registerMode">Register</label>
         </div>
         <form method="POST" action="/auth">
           <input type="hidden" name="action" id="formAction" value="login" />
           <input
-            class="form-control mb-2"
+            class="form-control mb-3"
             type="text"
             name="username"
             placeholder="Username"
             required
           />
           <input
-            class="form-control mb-2"
+            class="form-control mb-3"
             type="password"
             name="password"
             placeholder="Password"
             required
           />
-          <button class="btn btn-primary w-100" type="submit">Submit</button>
+          <button class="btn btn-primary w-100">Submit</button>
         </form>
       </div>
     </div>
